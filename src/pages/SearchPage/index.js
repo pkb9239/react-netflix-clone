@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from "../../api/axios";
+import useDebounce from '../../hooks/useDebounce';
 import "./SearchPage.css";
 
 function SearchPage() {
@@ -11,12 +12,13 @@ function SearchPage() {
     }
     let query = useQuery();
     const searchTerm = query.get("q");
+    const deboundSearchTerm = useDebounce(searchTerm, 500);
 
     useEffect(() => {
-      if (searchTerm) {
-        fetchSearchMovie(searchTerm);
+      if (deboundSearchTerm) {
+        fetchSearchMovie(deboundSearchTerm);
       }
-    }, [searchTerm]);
+    }, [deboundSearchTerm]);
 
     const fetchSearchMovie = async (searchTerm) => {
       try {
@@ -38,7 +40,7 @@ function SearchPage() {
               const movieImageUrl = 
                 "https://image.tmdb.org/t/p/w500" + movie.backdrop_path
                 return (
-                  <div className='movie'>
+                  <div className='movie' key={movie.id}>
                     <div
                       className='movie__column-poster'
                     >
@@ -58,7 +60,7 @@ function SearchPage() {
         <section className='no-results'>
           <div className='no-results__text'>
             <p>
-              찾고자하는 검색어 "{searchTerm}" 에 맞는 영화가 없습니다.
+              찾고자하는 검색어 "{deboundSearchTerm}" 에 맞는 영화가 없습니다.
             </p>
           </div>
         </section>
